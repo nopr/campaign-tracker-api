@@ -1,0 +1,26 @@
+{
+  "name": "186-sote",
+  "version": "0.0.1",
+  "description": "186th Campaign Tracker",
+  "homepage": "https://github.com/nopr/186-sote",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nopr/186-sote.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nopr/186-sote/issues"
+  },
+  "author": "jay@nopr.co",
+  "license": "",
+  "engines": {
+    "node": "0.12.2"
+  },
+  "dependencies": {
+    "express": "^4.12.4",
+    "mongoose": "^4.0.5"
+  }
+}
