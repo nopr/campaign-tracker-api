@@ -1,10 +1,12 @@
 var parser = require('body-parser'),
     express = require('express'),
-    mongoose = require('mongoose')
+    mongoose = require('mongoose'),
+    cors = require('cors')
 
 var app = express()
 
 // Middleware
+app.use(cors())
 app.use(parser.json())
 app.use(parser.urlencoded({ extended: false }))
 
