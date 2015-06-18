@@ -1,35 +1,48 @@
 var express = require('express')
+var mongoose = require('mongoose')
 var router = express.Router()
 
-var Model = require('../model/player')
+var Player = require('../model/player')
+var Faction = require('../model/faction')
 
 router.get('/', function(req, res) {
-  Model.find({}, function (err, result) {
+  Player.find({}).populate('faction matches').exec(function (err, result) {
     if (err) { return res.status(400).send(err) }
     if (!result) { return res.status(404).send('not found') }
     res.send(result)
   })
 })
 router.get('/:id', function(req, res) {
-  var query = { id: req.params.id }
-  Model.findOne(query, function (err, result) {
+  var query = { _id: req.params.id }
+  Player.findOne(query).populate('faction matches').exec(function (err, result) {
     if (err) { return res.status(400).send(err) }
     if (!result) { return res.status(404).send('not found') }
     res.send(result)
   })
 })
 router.post('/', function(req, res) {
-  var Created = new Model({
+  var Created = new Player({
     name: req.body.name
   })
+  if (req.body.faction) {
+    Created.faction = req.body.faction;
+  }
   Created.save(function (err, result) {
     if (err) { return res.status(400).send(err) }
-    res.send(result)
+    if (req.body.faction) {
+      Faction.findOne({ _id: req.body.faction}, function (err, f) {
+        f.players.push(mongoose.Types.ObjectId(result._id));
+        f.save();
+        res.send(result);
+      });
+    } else {
+      res.send(result);
+    }
   })
 })
 router.put('/:id', function(req, res) {
-  var query = { id: req.params.id }
-  Model.findOne(query, function (err, result) {
+  var query = { _id: req.params.id }
+  Player.findOne(query, function (err, result) {
     if (err) { return res.status(400).send(err) }
     if (!result) { return res.status(404).send('not found') }
     for (var prop in req.body) {
@@ -42,11 +55,11 @@ router.put('/:id', function(req, res) {
   })
 })
 router.delete('/:id', function(req, res) {
-  var query = { id: req.params.id }
-  Model.findOne(query, function (err, result) {
+  var query = { _id: req.params.id }
+  Player.findOne(query, function (err, result) {
     if (err) { return res.status(400).send(err) }
     if (!result) { return res.status(404).send('not found') }
-    Model.remove(query, function (err, result) {
+    Player.remove(query, function (err, result) {
       if (err) { return res.status(400).send(err) }
       res.send(result)
     })
