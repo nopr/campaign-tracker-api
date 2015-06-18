@@ -12,6 +12,8 @@ app.use(parser.urlencoded({ extended: false }))
 
 // Routes
 app.use('/faction', require('./app/route/faction'))
+app.use('/player', require('./app/route/player'))
+app.use('/match', require('./app/route/match'))
 
 // Root Route
 app.get('/', function (req, res) {
