@@ -18,8 +18,7 @@ router.get('/:id', function(req, res) {
     res.send(result)
   })
 })
-router.post('/:id', function(req, res) {
-  var query = { id: req.params.id }
+router.post('/', function(req, res) {
   var Created = new Model({
     name: req.body.name
   })
