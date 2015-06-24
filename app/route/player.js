@@ -5,21 +5,26 @@ var router = express.Router()
 var Player = require('../model/player')
 var Faction = require('../model/faction')
 
+var PlayerScores = require('../helper/player-scores')
+
+// GET: Fetch details of all players
 router.get('/', function(req, res) {
   Player.find({}).populate('faction matches').exec(function (err, result) {
-    if (err) { return res.status(400).send(err) }
-    if (!result) { return res.status(404).send('not found') }
-    res.send(result)
+    var transformed = result.map(PlayerScores)
+    res.send(transformed)
   })
 })
+
+// GET: Fetch details of one player
 router.get('/:id', function(req, res) {
   var query = { _id: req.params.id }
   Player.findOne(query).populate('faction matches').exec(function (err, result) {
-    if (err) { return res.status(400).send(err) }
-    if (!result) { return res.status(404).send('not found') }
-    res.send(result)
+    var transformed = PlayerScores(result)
+    res.send(transformed)
   })
 })
+
+// POST: Add a new player
 router.post('/', function(req, res) {
   var Created = new Player({
     name: req.body.name
@@ -28,39 +33,33 @@ router.post('/', function(req, res) {
     Created.faction = req.body.faction;
   }
   Created.save(function (err, result) {
-    if (err) { return res.status(400).send(err) }
-    if (req.body.faction) {
-      Faction.findOne({ _id: req.body.faction}, function (err, f) {
-        f.players.push(mongoose.Types.ObjectId(result._id));
-        f.save();
-        res.send(result);
-      });
-    } else {
-      res.send(result);
-    }
-  })
-})
-router.put('/:id', function(req, res) {
-  var query = { _id: req.params.id }
-  Player.findOne(query, function (err, result) {
-    if (err) { return res.status(400).send(err) }
-    if (!result) { return res.status(404).send('not found') }
-    for (var prop in req.body) {
-      result[prop] = req.body[prop]
-    }
-    result.save(function (err, result) {
-      if (err) { return res.status(400).send(err) }
+    if (!req.body.faction) { return res.send(result) }
+    Faction.findOne({ _id: req.body.faction}, function (err, f) {
+      f.players.push(mongoose.Types.ObjectId(result._id))
+      f.save()
       res.send(result)
     })
   })
 })
+
+// PUT: Update a player
+router.put('/:id', function(req, res) {
+  var query = { _id: req.params.id }
+  Player.findOne(query, function (err, result) {
+    for (var prop in req.body) {
+      result[prop] = req.body[prop]
+    }
+    result.save(function (err, result) {
+      res.send(result)
+    })
+  })
+})
+
+// DELETE: Remove a player
 router.delete('/:id', function(req, res) {
   var query = { _id: req.params.id }
   Player.findOne(query, function (err, result) {
-    if (err) { return res.status(400).send(err) }
-    if (!result) { return res.status(404).send('not found') }
     Player.remove(query, function (err, result) {
-      if (err) { return res.status(400).send(err) }
       res.send(result)
     })
   })

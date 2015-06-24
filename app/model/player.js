@@ -11,6 +11,11 @@ var PlayerSchema = mongoose.Schema({
     average: Number,
     cumulative: Number
   },
+  games: {
+    won: Number,
+    lost: Number,
+    drawn: Number
+  },
   matches: [{
     type: mongoose.Schema.ObjectId,
     ref: 'Match'
